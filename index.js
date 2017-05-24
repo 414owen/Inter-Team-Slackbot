@@ -14,7 +14,7 @@ function forward(team, message, prefix) {
 				token: t.token,
 				username: "inter-team",
 				channel: t.channel,
-				text: team.users[message.user].name + ": " + message.text
+				text:  message.text + ' - ' + team.users[message.user].name
 			};
 			slack.chat.postMessage(params, function(err, data) {
 				if (!err && data) {
@@ -30,7 +30,7 @@ function prefix(type, num) {
 }
 
 teams.forEach(function(team, teamInd) {
-	let bot = slack.rtm.client();
+	var bot = slack.rtm.client();
 	team.users = {};
 	var teamPrefix = prefix("t", teamInd);
 	console.log(teamPrefix, "Fetching team info");
