@@ -1,0 +1,13 @@
+{
+  "name": "interteambot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Owen Shepherd",
+  "license": "MIT",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "slack": "^8.3.1"
+  }
+}
