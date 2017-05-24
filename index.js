@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 var slack = require("slack");
-var botName = "InterTeamBot";
-var messageNumber = 0;
 var teams = require("./teams");
+var botName = "InterTeamBot";
 var verbose = process.argv[2] === "verbose";
+var messageNumber = 0;
 
 function forward(team, message, prefix) {
 	console.log(prefix, "Forwarding");
@@ -12,9 +12,9 @@ function forward(team, message, prefix) {
 		if (t.id !== team.id) {
 			var params = {
 				token: t.token,
-				username: "inter-team",
+				username: botName,
 				channel: t.channel,
-				text:  message.text + ' - ' + team.users[message.user].name
+				text: "*" +  team.users[message.user].name + ":* " + message.text.trim()
 			};
 			slack.chat.postMessage(params, function(err, data) {
 				if (!err && data) {
@@ -41,7 +41,9 @@ teams.forEach(function(team, teamInd) {
 			bot.message(function(message) {
 				var messagePrefix = prefix("m", messageNumber++);
 				if (verbose) {console.log(messagePrefix, message);}
-				if (message.type !== "message" || (message.subtype && message.subtype.indexOf("bot") !== -1)) {return;}
+				if (message.type !== "message" || 
+					(message.subtype && message.subtype.indexOf("bot") !== -1) ||
+					!message.text) {return;}
 				console.log(messagePrefix, "Received message:", 
 					(verbose ? "" : message.text)
 				);
