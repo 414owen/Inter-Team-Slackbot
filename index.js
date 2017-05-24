@@ -1,12 +1,14 @@
+#!/usr/bin/env node
+
 var slack = require("slack");
 var botName = "InterTeamBot";
 var messageNumber = 0;
 var teams = require("./teams");
+var verbose = process.argv[2] === "verbose";
 
 function forward(team, message, prefix) {
 	console.log(prefix, "Forwarding");
-	for (var i = 0; i < teams.length; i++) {
-		var t = teams[i];
+	teams.forEach(function(t) {
 		if (t.id !== team.id) {
 			var params = {
 				token: t.token,
@@ -20,7 +22,7 @@ function forward(team, message, prefix) {
 				} else {console.error(prefix, err);}
 			});
 		}
-	}
+	});
 }
 
 function prefix(type, num) {
@@ -37,9 +39,12 @@ teams.forEach(function(team, teamInd) {
 			console.log(teamPrefix, "Team info found");
 			team.id = data.team.id;
 			bot.message(function(message) {
-				if (message.subtype || message.type !== "message") {return;}
 				var messagePrefix = prefix("m", messageNumber++);
-				console.log(messagePrefix, "Received message:", message.text);
+				if (verbose) {console.log(messagePrefix, message);}
+				if (message.type !== "message" || (message.subtype && message.subtype.indexOf("bot") !== -1)) {return;}
+				console.log(messagePrefix, "Received message:", 
+					(verbose ? "" : message.text)
+				);
 				if (team.users[message.user]) {
 					console.log(messagePrefix, "User already known");
 					forward(team, message, messagePrefix);
