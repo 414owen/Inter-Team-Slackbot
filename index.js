@@ -29,6 +29,32 @@ function prefix(type, num) {
 	return "[" + type + num + "] -";
 }
 
+function onMessage(team, message) {
+	var messagePrefix = prefix("m", messageNumber++);
+	if (verbose) {console.log(messagePrefix, message);}
+	if (message.type !== "message" || 
+		(message.subtype && message.subtype.indexOf("bot") !== -1) ||
+		!message.text) {return;}
+	console.log(messagePrefix, "Received message:", 
+		(verbose ? "" : message.text)
+	);
+	if (team.users[message.user]) {
+		console.log(messagePrefix, "User already known");
+		forward(team, message, messagePrefix);
+	} else {
+		console.log(messagePrefix, "Looking up user");
+		slack.users.info({
+			token: team.token,
+			user: message.user
+		}, function(err, data) {
+			if (!err && data) {
+				team.users[message.user] = data.user;
+				forward(team, message, messagePrefix);
+			} else {console.error(messagePrefix, err);}
+		});
+	}
+}
+
 teams.forEach(function(team, teamInd) {
 	var bot = slack.rtm.client();
 	team.users = {};
@@ -38,31 +64,7 @@ teams.forEach(function(team, teamInd) {
 		if (!err && data) {
 			console.log(teamPrefix, "Team info found");
 			team.id = data.team.id;
-			bot.message(function(message) {
-				var messagePrefix = prefix("m", messageNumber++);
-				if (verbose) {console.log(messagePrefix, message);}
-				if (message.type !== "message" || 
-					(message.subtype && message.subtype.indexOf("bot") !== -1) ||
-					!message.text) {return;}
-				console.log(messagePrefix, "Received message:", 
-					(verbose ? "" : message.text)
-				);
-				if (team.users[message.user]) {
-					console.log(messagePrefix, "User already known");
-					forward(team, message, messagePrefix);
-				} else {
-					console.log(messagePrefix, "Looking up user");
-					slack.users.info({
-						token: team.token,
-						user: message.user
-					}, function(err, data) {
-						if (!err && data) {
-							team.users[message.user] = data.user;
-							forward(team, message, messagePrefix);
-						} else {console.error(messagePrefix, err);}
-					});
-				}
-			});
+			bot.message(onMessage.bind(null, team));
 			bot.listen({token: team.token});
 		} else {
 			console.error("Couldn't retrieve team into for team:", team);
