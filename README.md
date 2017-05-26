@@ -32,12 +32,12 @@ npm run start
 
 ## Planned Work
 
-* Add (optional) support for bouncing shared files/snippets/whatever
-* (If possible) find solution for launching slack commands cross-channel
-  * It seems this used to be possible via the undocumented API method
-	`chat.command`, but I wrote an SDK wrapper for this, but when using it got
-	the response `body: { ok: false, error: 'user_is_bot' }`, my guess is that
-	chat.command supports the `as_user` parameter, so it is possible, but
-	setting up the bot as a user adds a lot of hassle to the setup...
-* Replace hard-coding channels in `teams.js` with commands for manipulating
+* Add (optional) support for bouncing shared files/snippets/whatever  
+* (If possible) find solution for launching slack commands cross-channel  
+  * It seems this used to be possible via the undocumented API method  
+	`chat.command`, and I wrote an SDK wrapper for this, but when using it got  
+	the response `body: { ok: false, error: 'user_is_bot' }`, when I was  
+	testing this I was sending messages as a bot, rather than as a bot user,  
+	maybe somebody wants to try this? 
+* Replace hard-coding channels in `teams.js` with commands for manipulating  
   who's connected to who.
